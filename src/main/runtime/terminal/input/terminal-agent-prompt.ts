@@ -81,10 +81,8 @@ export abstract class OrcaRuntimeWithWriteTerminalAgentPrompt extends OrcaRuntim
     }
     this.assertAgentPromptPermissionSafe(permissionBaseline, permissionBaseline)
     const writeHostPlatform = this.getPtyWriteHostPlatform(ptyId)
-    const agent = await this.resolveTerminalPromptAgent(ptyId)
+    const agent = await this.resolveTerminalPromptAgent(ptyId, options.signal)
     // OMP treats a large bracketed paste as a menu unless submit arrives in the same PTY write.
-    // Once a foreground agent is known, it is the process that will consume the bytes;
-    // launchAgent is only the fallback during startup before process detection settles.
     const submitWithPaste = agentPromptSubmitJoinsPasteFrame(agent)
     const pasteByteLength = Buffer.byteLength(pastePayload, 'utf8')
     const pasteIngestMs = getTerminalPasteIngestMs(writeHostPlatform, pasteByteLength)
