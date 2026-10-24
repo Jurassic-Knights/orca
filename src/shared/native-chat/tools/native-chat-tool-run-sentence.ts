@@ -1,7 +1,10 @@
 // Summarize categories in first-use order using the same vocabulary as glyphs so headers and icons agree.
 
-import { nativeChatToolCategory, type NativeChatToolCategory } from './native-chat-tool-icon'
-import type { NativeChatMcpIdentity } from './native-chat-tool-identity'
+import {
+  nativeChatToolCategory,
+  type NativeChatToolCategory,
+  type NativeChatToolCategoryCall
+} from './native-chat-tool-icon'
 import { toolInputCommand } from './native-chat-tool-summary'
 import { isToolCallBlock, type NativeChatBlock } from '../../native-chat-types'
 
@@ -55,7 +58,7 @@ export type NativeChatToolRunClause = {
 
 /** Count categories in first-use order so the sentence follows the work, not count ranking. */
 export function nativeChatToolRunClauses(
-  calls: readonly { name: string; mcpIdentity?: NativeChatMcpIdentity; input?: unknown }[]
+  calls: readonly NativeChatToolCategoryCall[]
 ): NativeChatToolRunClause[] {
   const counts = new Map<NativeChatToolCategory, number>()
   for (const call of calls) {

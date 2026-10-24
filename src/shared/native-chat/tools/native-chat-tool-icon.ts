@@ -88,10 +88,27 @@ const EDIT_ROW_WORDS = new Set([...EDIT_TOOL_NAMES].map((name) => name.toLowerCa
  *  tool, so only the prefix identifies one. */
 const MCP_TOOL_PREFIX = 'mcp__'
 
-type NativeChatToolCategoryCall = {
+export type NativeChatToolCategoryCall = {
   name: string
   mcpIdentity?: NativeChatMcpIdentity
   input?: unknown
+}
+
+// A run's header, icon and rows all classify the same call on every render; parse it once.
+const browserCommandByInput = new WeakMap<object, boolean>()
+
+function runsOrcaBrowserCommand(input: unknown): boolean {
+  const cached =
+    input !== null && typeof input === 'object' ? browserCommandByInput.get(input) : undefined
+  if (cached !== undefined) {
+    return cached
+  }
+  const command = nativeChatFullCommand(input)
+  const runs = command !== null && parseOrcaBrowserCommand(command) !== null
+  if (input !== null && typeof input === 'object') {
+    browserCommandByInput.set(input, runs)
+  }
+  return runs
 }
 
 /** The category a row word names, or null when the lane emitted something this
@@ -107,8 +124,7 @@ export function nativeChatToolCategory(
   }
   // Commands can carry patches without applying them; command identity takes precedence over edit vocabulary.
   if (isCommandToolName(word)) {
-    const command = nativeChatFullCommand(input)
-    return command !== null && parseOrcaBrowserCommand(command) !== null ? 'browser' : 'unknown'
+    return runsOrcaBrowserCommand(input) ? 'browser' : 'unknown'
   }
   return CATEGORY_BY_ROW_WORD.get(word) ?? (EDIT_ROW_WORDS.has(word) ? 'fileChange' : null)
 }
