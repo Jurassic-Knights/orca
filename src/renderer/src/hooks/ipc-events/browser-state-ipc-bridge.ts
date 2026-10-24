@@ -18,6 +18,10 @@ import {
   endAgentInputFocusGuard,
   watchUserComposition
 } from '@/components/browser-pane/host-guest/agent-input-focus-guard'
+import {
+  setBrowserAgentPageActive,
+  showBrowserAgentCursor
+} from '@/components/browser-pane/agent-cursor/browser-agent-activity-state'
 
 /** Client-hosted webview events originate in this desktop even for remote workspaces; runtime-active guards would incorrectly drop them. */
 function isClientHostedBrowserPage(browserPageId: string): boolean {
@@ -25,6 +29,16 @@ function isClientHostedBrowserPage(browserPageId: string): boolean {
     useAppStore.getState().remoteBrowserPageHandlesByPageId[browserPageId]?.placement?.kind ===
     'client'
   )
+}
+
+function worktreeIdForBrowserPage(browserPageId: string): string | null {
+  for (const pages of Object.values(useAppStore.getState().browserPagesByWorkspace)) {
+    const page = pages.find((candidate) => candidate.id === browserPageId)
+    if (page) {
+      return page.worktreeId
+    }
+  }
+  return null
 }
 
 export function registerBrowserStateIpcBridge(
@@ -134,6 +148,23 @@ export function registerBrowserStateIpcBridge(
       unwatchUserComposition()
       clearAgentInputFocusGuards()
     })
+  }
+  const unsubscribeAgentActivity = window.api.browser.onAgentActivity?.(
+    ({ browserPageId, active }) => {
+      setBrowserAgentPageActive(browserPageId, active, worktreeIdForBrowserPage(browserPageId))
+    }
+  )
+  if (unsubscribeAgentActivity) {
+    unsubs.push(unsubscribeAgentActivity)
+  }
+  const unsubscribeAgentCursor = window.api.browser.onAgentCursor?.((event) => {
+    // Main waits for this answer, so a page nobody can see answers at once.
+    if (!showBrowserAgentCursor(event) && event.awaitsArrival) {
+      window.api.browser.agentCursorArrived(event.sequence)
+    }
+  })
+  if (unsubscribeAgentCursor) {
+    unsubs.push(unsubscribeAgentCursor)
   }
   unsubs.push(
     window.api.browser.onPaneFocus(({ worktreeId, browserPageId }) => {
