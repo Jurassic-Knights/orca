@@ -21192,6 +21192,6 @@
     "rowActions": "{{name}} の操作"
   },
   "browserTab": {
-    "agentDriving": "エージェントがこのページを使用中です"
+    "agentDriving": "Agent がこのページを使用中です"
   }
 }
