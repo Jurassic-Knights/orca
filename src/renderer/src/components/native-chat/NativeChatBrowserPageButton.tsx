@@ -10,8 +10,8 @@ import {
   useLastBrowserAgentActivity
 } from '../browser-pane/agent-cursor/browser-agent-activity-state'
 import { useNativeChatVisualOwner } from './native-chat-visual-owner'
-import { nativeChatToolRunCategory } from '../../../../shared/native-chat-tool-icon'
-import { nativeChatFullCommand } from '../../../../shared/native-chat-tool-input-text'
+import { nativeChatToolRunCategory } from '../../../../shared/native-chat/tools/native-chat-tool-icon'
+import { nativeChatFullCommand } from '../../../../shared/native-chat/tools/native-chat-tool-input-text'
 import { parseOrcaBrowserCommand } from '../../../../shared/orca-browser-cli-commands'
 import type { NativeChatToolCallBlock } from '../../../../shared/native-chat-types'
 
