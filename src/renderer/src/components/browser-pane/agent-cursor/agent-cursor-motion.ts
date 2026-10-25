@@ -76,7 +76,7 @@ export function createAgentCursor(
     point = { ...target }
   }
 
-  const settleShape = (): void => {
+  const resetLeanAndSquash = (): void => {
     lean.snap(0)
     squash.snap(1)
     stretch.snap(1)
@@ -86,7 +86,7 @@ export function createAgentCursor(
   const jumpTo = (target: CursorPoint): void => {
     motion = null
     setPosition(target)
-    settleShape()
+    resetLeanAndSquash()
     heading.snap(CURSOR_REST_HEADING_DEG)
   }
 
@@ -167,7 +167,7 @@ export function createAgentCursor(
       lean.target = motion.leanDeg * swing
       if (travelled >= 0.999 && hasLanded(motion.end)) {
         setPosition(motion.end)
-        settleShape()
+        resetLeanAndSquash()
         motion = null
         arrive()
       }
